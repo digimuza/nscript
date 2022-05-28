@@ -5,7 +5,8 @@ import { PackageJson } from 'type-fest'
 import * as P from 'ts-prime'
 import * as Parse from 'iterparse'
 import Axios from 'axios'
-export { Jet, Path, Parse, Axios }
+import * as Semver from 'semver'
+export { Jet, Path, Parse, Axios, Semver }
 
 export namespace PackageJSON {
 	export function closest() {
