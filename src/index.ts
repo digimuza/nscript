@@ -1,43 +1,51 @@
 import * as child from 'child_process'
-import { Observable, firstValueFrom } from 'rxjs'
+import * as Jet from 'fs-jetpack'
+import * as Path from 'path'
+import { PackageJson } from 'type-fest'
+import * as P from 'ts-prime'
+import * as Parse from 'iterparse'
+import Axios from 'axios'
+export { Jet, Path, Parse, Axios }
 
-export type InfoMessage = {
-	type: 'info'
-	data: string
-}
+export namespace PackageJSON {
+	export function closest() {
+		let path = 'package.json'
+		for (const index of P.range(1, 50)) {
+			const r = Jet.exists(path)
+			if (r) {
+				return Jet.read(path, 'json') as PackageJson
+			}
+			const f = P.range(0, index)
+				.map(() => '../')
+				.join('')
 
-export interface ErrorMessage {
-	type: 'error'
-	data: string
-}
-
-export interface ExitMessage {
-	type: 'exit'
-	code: number
-}
-
-export class ExecutionObservable extends Observable<InfoMessage | ErrorMessage | ExitMessage> {
-	toPromise(): Promise<InfoMessage | ErrorMessage | ExitMessage> {
-		return firstValueFrom(this)
+			path = Path.resolve(f, 'package.json')
+		}
+		throw new Error('Failed to find package.json')
 	}
 }
-
-export function exec(script: string, options?: child.ExecOptions) {
-	return new ExecutionObservable((observe) => {
-		const program = child.exec(script, options)
-		program.stdout?.on('data', (data: string) => {
-			observe.next({ type: 'info', data })
+export namespace Exec {
+	export function script(name: string, script: string, options?: child.ExecOptions) {
+		return new Promise<void>((resolve, reject) => {
+			const program = child.exec(script, options)
+			program.stdout?.on('data', (data: string) => {
+				const log = data
+					.split('\n')
+					.filter((q) => q)
+					.map((q, index) => `${index === 0 ? name.padEnd(20) : ''.padEnd(20)} | ${q}`)
+					.join('\n')
+				console.log(log)
+			})
+			program.stderr?.on('data', (c) => {
+				console.log(`${name.padEnd(20)} | ${c}`)
+			})
+			program.on('exit', (d: number) => {
+				if (d !== 0) {
+					console.log(`${name.padEnd(20)}`, 'Exit code', d)
+					reject()
+				}
+				resolve()
+			})
 		})
-		program.stderr?.on('data', (c) => {
-			observe.next({ type: 'error', data: c })
-		})
-		program.on('exit', (d: number) => {
-			if (d !== 0) {
-				observe.error({ type: 'exit', code: d })
-				process.exit(d)
-			}
-			observe.next({ type: 'exit', code: d })
-			observe.complete()
-		})
-	})
+	}
 }
