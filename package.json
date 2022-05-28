@@ -1,7 +1,7 @@
 {
   "name": "@digimuza/nscript",
   "description": "Description",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "publishConfig": {
@@ -44,8 +44,7 @@
     "build": "rm -rf lib && tsc --build",
     "format": "prettier --write \"**/src/**/*.ts\"",
     "watch": "yarn link && tsc --watch",
-    "test": "jest",
-    "postinstall": "git config core.hooksPath .githooks"
+    "test": "jest"
   },
   "author": "digimuza",
   "license": "MIT",
