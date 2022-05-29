@@ -6,6 +6,7 @@ import * as P from 'ts-prime'
 import * as Parse from 'iterparse'
 import Axios from 'axios'
 import * as Semver from 'semver'
+export { Proxy } from './proxy'
 export { Jet, Path, Parse, Axios, Semver }
 
 export namespace PackageJSON {
