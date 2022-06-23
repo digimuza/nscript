@@ -1,5 +1,5 @@
 import express, { Request } from 'express'
-import { Observable } from 'rxjs'
+import { Observable, tap } from 'rxjs'
 
 export namespace Proxy {
 	export function server(args: { port: number }) {
@@ -15,10 +15,29 @@ export namespace Proxy {
 				})
 			})
 
-			const se = app.listen(args.port)
+			const se = app.listen(args.port, () => {
+				console.log('as')
+			})
 			return () => {
 				se.close()
 			}
 		})
 	}
 }
+
+Proxy.server({
+	port: 6675,
+})
+	.pipe(
+		tap((c) =>
+			console.log({
+				method: c.method,
+				headers: c.headers,
+				body: c.body,
+				x: c.baseUrl,
+				cx: c.params,
+				xzc: c.path,
+			})
+		)
+	)
+	.subscribe()

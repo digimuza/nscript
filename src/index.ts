@@ -10,12 +10,12 @@ export { Proxy } from './proxy'
 export { Jet, Path, Parse, Axios, Semver }
 
 export namespace PackageJSON {
-	export function closest() {
+	export function file() {
 		let path = 'package.json'
 		for (const index of P.range(1, 50)) {
 			const r = Jet.exists(path)
 			if (r) {
-				return Jet.read(path, 'json') as PackageJson
+				return path
 			}
 			const f = P.range(0, index)
 				.map(() => '../')
@@ -24,6 +24,10 @@ export namespace PackageJSON {
 			path = Path.resolve(f, 'package.json')
 		}
 		throw new Error('Failed to find package.json')
+	}
+	export function closest() {
+		const packageJsonPath = file()
+		return Jet.read(packageJsonPath, 'json') as PackageJson
 	}
 }
 export namespace Exec {
