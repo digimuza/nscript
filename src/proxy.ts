@@ -24,20 +24,3 @@ export namespace Proxy {
 		})
 	}
 }
-
-Proxy.server({
-	port: 6675,
-})
-	.pipe(
-		tap((c) =>
-			console.log({
-				method: c.method,
-				headers: c.headers,
-				body: c.body,
-				x: c.baseUrl,
-				cx: c.params,
-				xzc: c.path,
-			})
-		)
-	)
-	.subscribe()

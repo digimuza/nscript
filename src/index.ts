@@ -8,7 +8,7 @@ import Axios from 'axios'
 import * as Semver from 'semver'
 export { Proxy } from './proxy'
 export { Jet, Path, Parse, Axios, Semver }
-
+import path from 'path'
 export namespace PackageJSON {
 	export function file() {
 		let path = 'package.json'
@@ -24,6 +24,17 @@ export namespace PackageJSON {
 			path = Path.resolve(f, 'package.json')
 		}
 		throw new Error('Failed to find package.json')
+	}
+	export function root() {
+		return path.dirname(file())
+	}
+
+	export function update(fn: (c: PackageJson) => PackageJson) {
+		const packageJsonPath = file()
+		const packageJSON = Jet.read(packageJsonPath, 'json') as PackageJson
+		const newVersion = fn(packageJSON)
+		Jet.write(packageJsonPath, newVersion)
+		return newVersion
 	}
 	export function closest() {
 		const packageJsonPath = file()
